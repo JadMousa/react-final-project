@@ -7,11 +7,22 @@ import NavigationBar from './components/navigationbar';
 import Footer from './components/footer';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoginButton from './components/loginbutton';
+import LogoutButton from './components/logoutbutton';
+import UserProfile from './components/userprofile.js';
+
 
 
 
 function App() {
   return (
+    <>
+    <div className="App">
+          <LoginButton/>
+          <LogoutButton/>
+          <p>The users information is bellow</p>
+          <UserProfile/>
+      </div>
     <Router>
         <NavigationBar />
           <Routes>
@@ -21,6 +32,7 @@ function App() {
           </Routes>
         <Footer />
     </Router>
+    </>
   );
 }
 

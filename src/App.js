@@ -10,29 +10,24 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import LoginButton from './components/loginbutton';
 import LogoutButton from './components/logoutbutton';
 import UserProfile from './components/userprofile.js';
+import Account from './pages/account';
 
 
 
 
 function App() {
   return (
-    <>
-    <div className="App">
-          <LoginButton/>
-          <LogoutButton/>
-          <p>The users information is bellow</p>
-          <UserProfile/>
-      </div>
+
     <Router>
         <NavigationBar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<Books />} />
             <Route path="/books/:id" element={<BookDetails />} />
+            <Route path="/account" element={<Account />} />
           </Routes>
         <Footer />
     </Router>
-    </>
   );
 }
 

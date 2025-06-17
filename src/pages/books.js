@@ -28,31 +28,49 @@ function Books() {
   // Load imported admin books (via localStorage + API)
   useEffect(() => {
     const storedIds = JSON.parse(localStorage.getItem('importedIds') || '[]');
-    setImportedIds(storedIds);
-
-    // Fetch each book by ID from your backend
-    Promise.all(storedIds.map(id =>
-      axios.get(`http://localhost:3002/api/books/${id}`).then(res => ({
-        id: res.data.id,
-        volumeInfo: {
-          title: res.data.title,
-          authors: [res.data.author],
-          categories: [res.data.genre],
-          publishedDate: res.data.published,
-          description: res.data.description,
-          imageLinks: {
-            thumbnail: res.data.image_url,
+    setImportedIds(storedIds); // still used by UI if needed
+  
+    const fetchBooks = async () => {
+      const validBooks = [];
+      const validIds = [];
+  
+      await Promise.all(
+        storedIds.map(async (id) => {
+          try {
+            const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+            validBooks.push({
+              id: res.data.id,
+              volumeInfo: {
+                title: res.data.title,
+                authors: [res.data.author],
+                categories: [res.data.genre],
+                publishedDate: res.data.published,
+                description: res.data.description,
+                imageLinks: {
+                  thumbnail: res.data.image_url,
+                }
+              }
+            });
+            validIds.push(id);
+          } catch (err) {
+            if (err.response?.status === 404) {
+              console.warn(`Book ID ${id} was deleted — removing from localStorage.`);
+            } else {
+              console.error(`Error fetching book ${id}:`, err.message);
+            }
           }
-        }
-      }))
-    )).then(fetchedBooks => {
-      setAdminBooks(fetchedBooks);
+        })
+      );
+  
+      setAdminBooks(validBooks);
+      setImportedIds(validIds);
+      localStorage.setItem('importedIds', JSON.stringify(validIds)); // update cleaned list
       setLoadingImports(false);
-    }).catch(err => {
-      console.error("Error loading imported books:", err);
-      setLoadingImports(false);
-    });
+    };
+  
+    fetchBooks();
   }, []);
+  
 
   return (
     <Container className="my-4">

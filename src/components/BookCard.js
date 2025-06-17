@@ -1,52 +1,50 @@
-// src/components/BookCard.js
 import React from 'react';
-import { Card } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
+function BookCard({ book, onImportToGoogleList }) {
+  const { user } = useAuth0();
+  const isGoogleBook = !!book.volumeInfo;
+  const info = isGoogleBook ? book.volumeInfo : book;
 
-function BookCard({ book }) {
-  const info = book.volumeInfo || {};
-  const saleInfo = book.saleInfo || {};
+  const title = info.title || 'No title available';
+  const author = info.authors?.[0] || info.author || 'Unknown Author';
+  const category = info.categories?.[0] || info.genre || 'Uncategorized';
+  const published = info.publishedDate || info.published || 'Unknown';
+  const image = info.imageLinks?.thumbnail || info.image_url || 'https://via.placeholder.com/150';
 
-  // Extract price
-  let price = "Not for sale";
-  if (saleInfo?.saleability === "FOR_SALE" && saleInfo.listPrice) {
-    price = `${saleInfo.listPrice.amount} ${saleInfo.listPrice.currencyCode}`;
-  } else if (saleInfo?.saleability === "FREE") {
-    price = "Free";
-  }
-
-  // Extract category (only show first one if multiple)
-  const category = info.categories ? info.categories[0] : "Uncategorized";
-
-    // Extract published date
-    const publishedDate = info.publishedDate || "Unknown";
+  const bookId = book.id;
 
   return (
-    <Link to={`/books/${book.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <Card className="h-100 shadow-sm">
-        {info.imageLinks?.thumbnail ? (
-          <Card.Img
-            variant="top"
-            src={info.imageLinks.thumbnail}
-            alt={info.title || 'No title'}
-          />
-        ) : (
-          <Card.Img
-            variant="top"
-            src="https://via.placeholder.com/150"
-            alt="No cover available"
-          />
-        )}
+    <Card className="h-100 shadow-sm position-relative">
+      <Link to={`/books/${bookId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Card.Img variant="top" src={image} alt={title} />
         <Card.Body>
-          <Card.Title>{info.title || 'No title available'}</Card.Title>
-          <Card.Text>{info.authors?.join(', ') || 'Unknown Author'}</Card.Text>
+          <Card.Title>{title}</Card.Title>
+          <Card.Text>{author}</Card.Text>
           <Card.Text><strong>Category:</strong> {category}</Card.Text>
-          <Card.Text><strong>Price:</strong> {price}</Card.Text>
-          <Card.Text><strong>Published:</strong> {publishedDate}</Card.Text>
+          <Card.Text><strong>Published:</strong> {published}</Card.Text>
         </Card.Body>
-      </Card>
-    </Link>
+      </Link>
+
+      {/* ✅ Show this button ONLY if allowed (e.g., in MyBooks) */}
+      {user?.email === "jadmousa12@gmail.com" && typeof onImportToGoogleList === 'function' && (
+        <div className="text-end p-2">
+          <Button
+            size="sm"
+            variant="outline-primary"
+            onClick={(e) => {
+              e.preventDefault(); // Prevent link click
+              onImportToGoogleList(book);
+            }}
+          >
+            📥 Import to Google List
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
+
 export default BookCard;

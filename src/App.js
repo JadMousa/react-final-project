@@ -11,6 +11,9 @@ import LoginButton from './components/loginbutton';
 import LogoutButton from './components/logoutbutton';
 import UserProfile from './components/userprofile.js';
 import Account from './pages/account';
+import AddBookPage from './pages/AddBookPage';
+import MyBooks from './pages/mybooks';
+
 
 
 
@@ -25,6 +28,8 @@ function App() {
             <Route path="/books" element={<Books />} />
             <Route path="/books/:id" element={<BookDetails />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/add-book" element={<AddBookPage />} />
+            <Route path="/my-books" element={<MyBooks />} />
           </Routes>
         <Footer />
     </Router>

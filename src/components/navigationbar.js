@@ -22,20 +22,23 @@ import UserProfile from './userprofile';
                 <Nav.Link as={Link} to="/books">Books</Nav.Link>
               </Nav>
               <Nav className="align-items-center">
-                {isAuthenticated ? (
-               <>
-               <Nav.Link as={Link} to="/account">
-                 <img
-                   src={user.picture}
-                   alt="Profile"
-                   style={{ width: '35px', height: '35px', borderRadius: '50%' }}
-                 />
-               </Nav.Link>
-               <LogoutButton />
-             </>
-           ) : (
-             <LoginButton />
-           )}
+              {isAuthenticated ? (
+                  <>
+                    {user?.email === "jadmousa12@gmail.com" && (
+                      <Nav.Link as={Link} to="/my-books">📘 My Books</Nav.Link>
+                    )}
+                    <Nav.Link as={Link} to="/account">
+                      <img
+                        src={user.picture}
+                        alt="Profile"
+                        style={{ width: '35px', height: '35px', borderRadius: '50%' }}
+                      />
+                    </Nav.Link>
+                    <LogoutButton />
+                  </>
+                ) : (
+                  <LoginButton />
+                )}
          </Nav>
             </Navbar.Collapse>
           </Container>

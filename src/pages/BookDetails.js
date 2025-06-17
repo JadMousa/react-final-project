@@ -4,17 +4,28 @@ import { Container, Spinner, Card, Button } from 'react-bootstrap';
 import axios from 'axios';
 
 function BookDetails() {
-  const { id } = useParams(); // book ID from URL
+  const { id } = useParams();
   const [book, setBook] = useState(null);
+  const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchBookDetails = async () => {
     try {
-      const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
-      setBook(res.data);
-      setLoading(false);
+      if (/^\d+$/.test(id)) {
+        // ✅ If ID is all digits → it's from your DB
+        const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+        setBook({ volumeInfo: res.data });
+        setIsAdminImported(true);
+      } else {
+        // ✅ Otherwise → try Google Books API
+        const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
+        setBook(res.data);
+        setIsAdminImported(false);
+      }
     } catch (err) {
-      console.error('Error fetching book details:', err);
+      console.error('Error fetching book:', err);
+      setBook(null);
+    } finally {
       setLoading(false);
     }
   };
@@ -24,10 +35,24 @@ function BookDetails() {
   }, [id]);
 
   if (loading) return <Spinner animation="border" className="m-4" />;
-
-  if (!book) return <p>Book not found.</p>;
+  if (!book || !book.volumeInfo) {
+    return (
+      <Container className="my-4 text-center">
+        <h4>❌ Book not found.</h4>
+        <Link to="/books">
+          <Button variant="secondary" className="mt-3">← Back to Book List</Button>
+        </Link>
+      </Container>
+    );
+  }
 
   const info = book.volumeInfo;
+  const image = info.imageLinks?.thumbnail || info.image_url || 'https://via.placeholder.com/150';
+  const title = info.title || 'No title available';
+  const author = info.authors?.join(', ') || info.author || 'Unknown Author';
+  const category = info.categories?.join(', ') || info.genre || 'Uncategorized';
+  const published = info.publishedDate || info.published || 'Unknown';
+  const description = info.description;
 
   return (
     <Container className="my-4">
@@ -36,21 +61,32 @@ function BookDetails() {
       </Link>
       <Card className="shadow-sm">
         <Card.Body>
-          <Card.Title>{info.title || 'No Title'}</Card.Title>
-          <Card.Subtitle className="mb-2 text-muted">{info.authors?.join(', ') || 'Unknown Author'}</Card.Subtitle>
+          <Card.Title>{title}</Card.Title>
+          <Card.Subtitle className="mb-2 text-muted">{author}</Card.Subtitle>
           <Card.Img
-            src={info.imageLinks?.thumbnail || 'https://via.placeholder.com/150'}
-            alt={info.title}
+            src={image}
+            alt={title}
             style={{ width: '200px', marginBottom: '1rem' }}
           />
+          <Card.Text><strong>Category:</strong> {category}</Card.Text>
+          <Card.Text><strong>Published:</strong> {published}</Card.Text>
           <Card.Text>
-            <strong>Description:</strong><br />{/* Render HTML content properly instead of showing raw HTML tags */}
-            {info.description ? (
-              <div dangerouslySetInnerHTML={{ __html: info.description }} />  
+            <strong>Description:</strong><br />
+            {description ? (
+          <span dangerouslySetInnerHTML={{ __html: description }} />
             ) : (
               'No description available.'
             )}
           </Card.Text>
+
+          {isAdminImported && (
+              <>
+              <hr />
+              <Card.Text className="mt-4">
+                <strong>📌 This book was added by the admin.</strong><br />
+              </Card.Text>
+            </>
+          )}
         </Card.Body>
       </Card>
     </Container>

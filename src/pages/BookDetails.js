@@ -12,8 +12,11 @@ function BookDetails() {
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
+        const baseURL = process.env.REACT_APP_API_BASE_URL;
+
         if (/^\d+$/.test(id)) {
-          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
+          // 👉 Dynamic base URL: works locally & in Railway
+          const res = await axios.get(`${baseURL}/api/books/${id}`);
           setBook({ volumeInfo: res.data });
           setIsAdminImported(true);
         } else {

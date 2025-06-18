@@ -1,7 +1,7 @@
 import './App.css';
 import Books from './pages/books';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import Home from './pages/home';
 import BookDetails from './pages/BookDetails';
 import NavigationBar from './components/navigationbar';
 import Footer from './components/footer';

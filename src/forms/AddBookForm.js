@@ -51,6 +51,7 @@ function AddBookForm({ onBookAdded = () => {} }) {
 
     try {
       const res = await fetch(`http://localhost:3002/api/books`, {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -43,17 +43,12 @@ This is the frontend of the **Library Management Web App**, built with [React.js
    ```bash
    npm install
    ```
-
-3. **Set up environment variables:**  
-   Create a `.env` file and add your Auth0 and API configuration.  
-   (You may include an example here.)
-
-4. **Start the development server:**
+3. **Start the development server:**
    ```bash
    npm start
    ```
 
-5. **Open the app:**
+4. **Open the app:**
    Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---

@@ -37,7 +37,7 @@ function Books() {
       await Promise.all(
         storedIds.map(async (id) => {
           try {
-            const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+            const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
             validBooks.push({
               id: res.data.id,
               volumeInfo: {

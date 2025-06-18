@@ -10,7 +10,6 @@ import UserProfile from './components/userprofile.js';
 import Account from './pages/account';
 import AddBookPage from './pages/AddBookPage';
 import MyBooks from './pages/mybooks';
-import Home from './pages/Home.js';
 import Books from './pages/books';
 import BookDetails from './pages/BookDetails';
 
@@ -20,7 +19,6 @@ function App() {
     <Router>
         <NavigationBar />
           <Routes>
-            <Route path="/" element={<Home />} />
             <Route path="/books" element={<Books />} />
             <Route path="/books/:id" element={<BookDetails />} />
             <Route path="/account" element={<Account />} />

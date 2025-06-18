@@ -11,6 +11,8 @@ import AddBookPage from './pages/AddBookPage';
 import MyBooks from './pages/mybooks';
 import Books from './pages/books';
 import BookDetails from './pages/BookDetails';
+import Home from './pages/home';
+
 
 function App() {
   return (
@@ -18,6 +20,7 @@ function App() {
       <NavigationBar />
       <Routes>
         {/* No Home Route */}
+        <Route path="/" element={<Home />} />
         <Route path="/books" element={<Books />} />
         <Route path="/books/:id" element={<BookDetails />} />
         <Route path="/account" element={<Account />} />

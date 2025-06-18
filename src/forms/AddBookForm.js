@@ -50,7 +50,8 @@ function AddBookForm({ onBookAdded = () => {} }) {
       }
 
     try {
-      const res = await fetch(`http://localhost:3002/api/books`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books`, {
+
 
         method: 'POST',
         headers: {

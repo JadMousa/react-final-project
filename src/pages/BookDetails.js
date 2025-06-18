@@ -8,6 +8,7 @@ function BookDetails() {
   const [book, setBook] = useState(null);
   const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchBookDetails = async () => {
@@ -15,17 +16,22 @@ function BookDetails() {
         const baseURL = process.env.REACT_APP_API_BASE_URL;
 
         if (/^\d+$/.test(id)) {
-          // 👉 Dynamic base URL: works locally & in Railway
+          // Admin-added book (from DB)
           const res = await axios.get(`${baseURL}/api/books/${id}`);
+          if (!res.data || Object.keys(res.data).length === 0) {
+            throw new Error("Book not found");
+          }
           setBook({ volumeInfo: res.data });
           setIsAdminImported(true);
         } else {
+          // Google Books API
           const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
           setBook(res.data);
           setIsAdminImported(false);
         }
       } catch (err) {
         console.error('Error fetching book:', err);
+        setError(err.response?.data?.message || 'Book not found or server error');
         setBook(null);
       } finally {
         setLoading(false);
@@ -36,10 +42,10 @@ function BookDetails() {
   }, [id]);
 
   if (loading) return <Spinner animation="border" className="m-4" />;
-  if (!book || !book.volumeInfo) {
+  if (error || !book || !book.volumeInfo) {
     return (
       <Container className="my-4 text-center">
-        <h4>❌ Book not found.</h4>
+        <h4>❌ {error || "Book not found."}</h4>
         <Link to="/books">
           <Button variant="secondary" className="mt-3">← Back to Book List</Button>
         </Link>

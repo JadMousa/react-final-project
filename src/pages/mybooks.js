@@ -13,7 +13,7 @@ function MyBooks() {
   useEffect(() => {
     const fetchMyBooks = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books`);
+        const res = await axios.get(`http://localhost:3002/api/books`);
         const formatted = res.data.map((book) => ({
           id: book.id,
           volumeInfo: {

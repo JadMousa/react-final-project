@@ -13,11 +13,9 @@ function BookDetails() {
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
-        const baseURL = process.env.REACT_APP_API_BASE_URL;
-
         if (/^\d+$/.test(id)) {
-          // Admin-added book (from DB)
-          const res = await axios.get(`${baseURL}/api/books/${id}`);
+          // Admin-added book from local DB
+          const res = await axios.get(`http://localhost:3002/api/books/${id}`);
           if (!res.data || Object.keys(res.data).length === 0) {
             throw new Error("Book not found");
           }

@@ -21,8 +21,33 @@ function AddBookForm({ onBookAdded = () => {} }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
+    const isValidImageUrl = (url) => {
+      if (!url.startsWith("http") && !url.startsWith("data:image/")) return false;
+    
+      const blockedPatterns = [
+        "google.com/imgres",
+        "google.com/url?sa=i",
+        "googleusercontent.com/proxy" // optional: blocks Google's CDN redirects
+      ];
+    
+      for (let pattern of blockedPatterns) {
+        if (url.includes(pattern)) return false;
+      }
+    
+      return true;
+    };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess(false);
+
+      // ✅ Validate image URL format
+      if (!isValidImageUrl(form.image_url)) {
+        setError("❌ Please paste a direct image link. Tip: right-click the image ➝ open in new tab ➝ copy that URL. Avoid using Google image preview links.");
+        return;
+      }
 
     try {
       const res = await fetch('http://localhost:3002/api/books', {
@@ -53,12 +78,29 @@ function AddBookForm({ onBookAdded = () => {} }) {
       <h4>Add a New Book</h4>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">Book added!</Alert>}
-      {["title", "author", "genre", "image_url", "published"].map(field => (
+      {["title", "author", "genre", "image_url"].map(field => (
         <Form.Group className="mb-2" key={field}>
           <Form.Label>{field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
-          <Form.Control name={field} value={form[field]} onChange={handleChange} required />
+          <Form.Control
+            type={field === "image_url" ? "url" : "text"}
+            name={field}
+            value={form[field]}
+            onChange={handleChange}
+            required
+          />
         </Form.Group>
       ))}
+      <Form.Group className="mb-2">
+      <Form.Label>Published</Form.Label>
+        <Form.Control
+          type="date" // ✅ Safe for PostgreSQL DATE format
+          name="published"
+          value={form.published}
+          onChange={handleChange}
+          required
+        />
+      </Form.Group>
+
       <Form.Group className="mb-2">
         <Form.Label>Description</Form.Label>
         <Form.Control as="textarea" rows={3} name="description" value={form.description} onChange={handleChange} />

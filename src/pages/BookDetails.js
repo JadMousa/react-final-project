@@ -13,7 +13,7 @@ function BookDetails() {
     const fetchBookDetails = async () => {
       try {
         if (/^\d+$/.test(id)) {
-          const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
           setBook({ volumeInfo: res.data });
           setIsAdminImported(true);
         } else {

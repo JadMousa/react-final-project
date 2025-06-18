@@ -1,12 +1,10 @@
 // src/components/NavigationBar.js
-import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
+import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 
 import LoginButton from './loginbutton';
 import LogoutButton from './logoutbutton';
-import UserProfile from './userprofile';
-
 
     function NavigationBar() {
       const { user, isAuthenticated } = useAuth0();

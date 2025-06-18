@@ -3,6 +3,7 @@ import { Container, Spinner, Row, Col, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useAuth0 } from "@auth0/auth0-react";
 import BookCard from '../components/BookCard';
+import EditBookModal from '../components/EditBookModal';
 
 function MyBooks() {
   const [books, setBooks] = useState([]);
@@ -48,8 +49,8 @@ function MyBooks() {
         <Alert variant="info">No books added yet.</Alert>
       ) : (
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-          {books.map((book, index) => (
-            <Col key={index}>
+          {books.map((book) => (
+            <Col key={book.id}>
               <div>
                 <BookCard
                   book={book}
@@ -60,33 +61,59 @@ function MyBooks() {
                       const updated = [...existing, bookToImport.id];
                       localStorage.setItem('importedIds', JSON.stringify(updated));
                       alert("✅ Book added to imported list.");
-                      window.location.href = "/books"; // Redirect to view them
+                      window.location.href = "/books";
                     } else {
                       alert("⚠️ Book already imported.");
                     }
                   }}
                 />
                 {user.email === "jadmousa12@gmail.com" && (
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="mt-2"
-                    onClick={async () => {
-                      if (!window.confirm("Are you sure you want to delete this book?")) return;
-                      try {
-                        await axios.delete(`http://localhost:3002/api/books/${book.id}`, {
-                          headers: { 'user-email': user.email }
-                        });
-                        setBooks(prev => prev.filter(b => b.id !== book.id));
-                        alert("✅ Book deleted.");
-                      } catch (err) {
-                        console.error("❌ Delete failed:", err);
-                        alert("Failed to delete the book.");
-                      }
-                    }}
-                  >
-                    🗑️ Delete
-                  </Button>
+                  <div className="mt-2">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="me-2"
+                      onClick={async () => {
+                        if (!window.confirm("Are you sure you want to delete this book?")) return;
+                        try {
+                          await axios.delete(`http://localhost:3002/api/books/${book.id}`, {
+                            headers: { 'user-email': user.email }
+                          });
+                          setBooks(prev => prev.filter(b => b.id !== book.id));
+                          alert("✅ Book deleted.");
+                        } catch (err) {
+                          console.error("❌ Delete failed:", err);
+                          alert("Failed to delete the book.");
+                        }
+                      }}
+                    >
+                      🗑️ Delete
+                    </Button>
+
+                    <EditBookModal
+                      book={book}
+                      onBookUpdated={(updatedBook) => {
+                        setBooks(prevBooks =>
+                          prevBooks.map(b =>
+                            b.id === updatedBook.id
+                              ? {
+                                  ...b,
+                                  volumeInfo: {
+                                    ...b.volumeInfo,
+                                    title: updatedBook.title,
+                                    authors: [updatedBook.author],
+                                    categories: [updatedBook.genre],
+                                    publishedDate: updatedBook.published,
+                                    description: updatedBook.description,
+                                    imageLinks: { thumbnail: updatedBook.image_url }
+                                  }
+                                }
+                              : b
+                          )
+                        );
+                      }}
+                    />
+                  </div>
                 )}
               </div>
             </Col>

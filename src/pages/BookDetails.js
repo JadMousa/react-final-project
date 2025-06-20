@@ -8,42 +8,37 @@ function BookDetails() {
   const [book, setBook] = useState(null);
   const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const fetchBookDetails = async () => {
+    try {
+      if (/^\d+$/.test(id)) {
+        // ✅ If ID is all digits → it's from your DB
+        const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+        setBook({ volumeInfo: res.data });
+        setIsAdminImported(true);
+      } else {
+        // ✅ Otherwise → try Google Books API
+        const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
+        setBook(res.data);
+        setIsAdminImported(false);
+      }
+    } catch (err) {
+      console.error('Error fetching book:', err);
+      setBook(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookDetails = async () => {
-      try {
-        if (/^\d+$/.test(id)) {
-          // Admin-added book from local DB
-          const res = await axios.get(`http://localhost:3002/api/books/${id}`);
-          if (!res.data || Object.keys(res.data).length === 0) {
-            throw new Error("Book not found");
-          }
-          setBook({ volumeInfo: res.data });
-          setIsAdminImported(true);
-        } else {
-          // Google Books API
-          const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
-          setBook(res.data);
-          setIsAdminImported(false);
-        }
-      } catch (err) {
-        console.error('Error fetching book:', err);
-        setError(err.response?.data?.message || 'Book not found or server error');
-        setBook(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBookDetails();
   }, [id]);
 
   if (loading) return <Spinner animation="border" className="m-4" />;
-  if (error || !book || !book.volumeInfo) {
+  if (!book || !book.volumeInfo) {
     return (
       <Container className="my-4 text-center">
-        <h4>❌ {error || "Book not found."}</h4>
+        <h4>❌ Book not found.</h4>
         <Link to="/books">
           <Button variant="secondary" className="mt-3">← Back to Book List</Button>
         </Link>
@@ -78,14 +73,14 @@ function BookDetails() {
           <Card.Text>
             <strong>Description:</strong><br />
             {description ? (
-              <span dangerouslySetInnerHTML={{ __html: description }} />
+          <span dangerouslySetInnerHTML={{ __html: description }} />
             ) : (
               'No description available.'
             )}
           </Card.Text>
 
           {isAdminImported && (
-            <>
+              <>
               <hr />
               <Card.Text className="mt-4">
                 <strong>📌 This book was added by the admin.</strong><br />

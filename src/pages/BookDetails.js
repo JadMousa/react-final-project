@@ -9,30 +9,30 @@ function BookDetails() {
   const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchBookDetails = async () => {
-    try {
-      if (/^\d+$/.test(id)) {
-        // ✅ If ID is all digits → it's from your DB
-        const res = await axios.get(`http://localhost:3002/api/books/${id}`);
-        setBook({ volumeInfo: res.data });
-        setIsAdminImported(true);
-      } else {
-        // ✅ Otherwise → try Google Books API
-        const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
-        setBook(res.data);
-        setIsAdminImported(false);
-      }
-    } catch (err) {
-      console.error('Error fetching book:', err);
-      setBook(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchBookDetails = async () => {
+      try {
+        if (/^\d+$/.test(id)) {
+          const baseUrl = process.env.REACT_APP_API_BASE_URL;
+          const res = await axios.get(`${baseUrl}/api/books/${id}`);
+          setBook({ volumeInfo: res.data });
+          setIsAdminImported(true);
+        } else {
+          const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
+          setBook(res.data);
+          setIsAdminImported(false);
+        }
+      } catch (err) {
+        console.error('Error fetching book:', err);
+        setBook(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchBookDetails();
   }, [id]);
+  
 
   if (loading) return <Spinner animation="border" className="m-4" />;
   if (!book || !book.volumeInfo) {

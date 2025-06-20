@@ -53,7 +53,8 @@ function EditBookModal({ book, onBookUpdated }) {
       }    
     
     try {
-      const res = await axios.put(`http://localhost:3002/api/books/${bookId}`, form, {
+      const baseUrl = process.env.REACT_APP_API_BASE_URL;
+      const res = await axios.put(`${baseUrl}/api/books/${bookId}`, form, {
         headers: {
           'Content-Type': 'application/json',
           'user-email': user.email,

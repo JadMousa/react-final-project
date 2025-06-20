@@ -50,7 +50,8 @@ function AddBookForm({ onBookAdded = () => {} }) {
       }
 
     try {
-      const res = await fetch('http://localhost:3002/api/books', {
+      const baseUrl = process.env.REACT_APP_API_BASE_URL;
+      const res = await fetch(`${baseUrl}/api/books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,6 +59,7 @@ function AddBookForm({ onBookAdded = () => {} }) {
         },
         body: JSON.stringify(form)
       });
+      
 
       if (res.status === 201) {
         setSuccess(true);

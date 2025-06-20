@@ -12,7 +12,22 @@ function BookCard({ book, onImportToGoogleList }) {
   const author = info.authors?.[0] || info.author || 'Unknown Author';
   const category = info.categories?.[0] || info.genre || 'Uncategorized';
   const published = info.publishedDate || info.published || 'Unknown';
-  const image = info.imageLinks?.thumbnail || info.image_url || 'https://via.placeholder.com/150';
+  
+  const isValidImageUrl = (url) => {
+    if (!url) return false;
+    if (!url.startsWith("http") && !url.startsWith("data:image/")) return false;
+    const blockedPatterns = [
+      "google.com/imgres",
+      "google.com/url?sa=i",
+      "googleusercontent.com/proxy"
+    ];
+    return !blockedPatterns.some(pattern => url.includes(pattern));
+  };
+
+  const image =
+    (isValidImageUrl(info.imageLinks?.thumbnail || info.image_url)
+      ? (info.imageLinks?.thumbnail || info.image_url)
+      : "/default-cover.png");
 
   const bookId = book.id;
 

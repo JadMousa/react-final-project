@@ -9,26 +9,28 @@ function BookDetails() {
   const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBookDetails = async () => {
-      try {
-        if (/^\d+$/.test(id)) {
-          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
-          setBook({ volumeInfo: res.data });
-          setIsAdminImported(true);
-        } else {
-          const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
-          setBook(res.data);
-          setIsAdminImported(false);
-        }
-      } catch (err) {
-        console.error('Error fetching book:', err);
-        setBook(null);
-      } finally {
-        setLoading(false);
+  const fetchBookDetails = async () => {
+    try {
+      if (/^\d+$/.test(id)) {
+        // ✅ If ID is all digits → it's from your DB
+        const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+        setBook({ volumeInfo: res.data });
+        setIsAdminImported(true);
+      } else {
+        // ✅ Otherwise → try Google Books API
+        const res = await axios.get(`https://www.googleapis.com/books/v1/volumes/${id}`);
+        setBook(res.data);
+        setIsAdminImported(false);
       }
-    };
+    } catch (err) {
+      console.error('Error fetching book:', err);
+      setBook(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBookDetails();
   }, [id]);
 
@@ -71,14 +73,14 @@ function BookDetails() {
           <Card.Text>
             <strong>Description:</strong><br />
             {description ? (
-              <span dangerouslySetInnerHTML={{ __html: description }} />
+          <span dangerouslySetInnerHTML={{ __html: description }} />
             ) : (
               'No description available.'
             )}
           </Card.Text>
 
           {isAdminImported && (
-            <>
+              <>
               <hr />
               <Card.Text className="mt-4">
                 <strong>📌 This book was added by the admin.</strong><br />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
 import { Form, Button, Alert } from 'react-bootstrap';
 
+
 function AddBookForm({ onBookAdded = () => {} }) {
   const { user } = useAuth0();
   const [form, setForm] = useState({
@@ -15,50 +16,53 @@ function AddBookForm({ onBookAdded = () => {} }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const isValidImageUrl = (url) => {
-    if (!url.startsWith("http") && !url.startsWith("data:image/")) return false;
 
-    const blockedPatterns = [
-      "google.com/imgres",
-      "google.com/url?sa=i",
-      "googleusercontent.com/proxy"
-    ];
-
-    for (let pattern of blockedPatterns) {
-      if (url.includes(pattern)) return false;
-    }
-
-    return true;
-  };
+    const isValidImageUrl = (url) => {
+      if (!url.startsWith("http") && !url.startsWith("data:image/")) return false;
+    
+      const blockedPatterns = [
+        "google.com/imgres",
+        "google.com/url?sa=i",
+        "googleusercontent.com/proxy" // optional: blocks Google's CDN redirects
+      ];
+    
+      for (let pattern of blockedPatterns) {
+        if (url.includes(pattern)) return false;
+      }
+    
+      return true;
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess(false);
 
-    if (!isValidImageUrl(form.image_url)) {
-      setError("❌ Please paste a direct image link. Tip: right-click the image ➝ open in new tab ➝ copy that URL. Avoid using Google image preview links.");
-      return;
-    }
+      // ✅ Validate image URL format
+      if (!isValidImageUrl(form.image_url)) {
+        setError("❌ Please paste a direct image link. Tip: right-click the image ➝ open in new tab ➝ copy that URL. Avoid using Google image preview links.");
+        return;
+      }
 
     try {
-      const res = await fetch(`http://localhost:3002/api/books`, {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'user-email': user?.email
+          'user-email': user?.email,
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
 
       if (res.status === 201) {
         setSuccess(true);
         setForm({ title: '', author: '', genre: '', image_url: '', description: '', published: '' });
-        onBookAdded(); // Refresh list if needed
+        onBookAdded(); // optional: reload books
       } else {
         const data = await res.json();
         setError(data.message || 'Failed to add book');
@@ -87,9 +91,9 @@ function AddBookForm({ onBookAdded = () => {} }) {
         </Form.Group>
       ))}
       <Form.Group className="mb-2">
-        <Form.Label>Published</Form.Label>
+      <Form.Label>Published</Form.Label>
         <Form.Control
-          type="date"
+          type="date" // ✅ Safe for PostgreSQL DATE format
           name="published"
           value={form.published}
           onChange={handleChange}

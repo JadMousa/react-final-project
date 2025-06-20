@@ -13,7 +13,7 @@ function MyBooks() {
   useEffect(() => {
     const fetchMyBooks = async () => {
       try {
-        const res = await axios.get(`http://localhost:3002/api/books`);
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books`);
         const formatted = res.data.map((book) => ({
           id: book.id,
           volumeInfo: {
@@ -76,7 +76,7 @@ function MyBooks() {
                       onClick={async () => {
                         if (!window.confirm("Are you sure you want to delete this book?")) return;
                         try {
-                          await axios.delete(`http://localhost:3002/api/books/${book.id}`, {
+                          await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/books/${book.id}`, {
                             headers: { 'user-email': user.email }
                           });
                           setBooks(prev => prev.filter(b => b.id !== book.id));

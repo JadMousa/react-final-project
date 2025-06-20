@@ -4,16 +4,16 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
 function EditBookModal({ book, onBookUpdated }) {
-  const formatDate = (input) => {
-    if (!input) return '';
-    const date = new Date(input);
-    const iso = date.toISOString();
-    return iso.slice(0, 10);
-  };
-
+    const formatDate = (input) => {
+        if (!input) return '';
+        const date = new Date(input);
+        const iso = date.toISOString(); // => "2025-01-31T21:00:00.000Z"
+        return iso.slice(0, 10); // => "2025-01-31"
+      };
   const { user } = useAuth0();
   const [show, setShow] = useState(false);
-  const bookId = book.id;
+
+  const bookId = book.id; //  keep it safe
 
   const [form, setForm] = useState({
     title: book.volumeInfo?.title || '',
@@ -27,35 +27,37 @@ function EditBookModal({ book, onBookUpdated }) {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const isValidImageUrl = (url) => {
     if (!url.startsWith("http") && !url.startsWith("data:image/")) return false;
+  
     const blockedPatterns = [
       "google.com/imgres",
-      "google.com/url?sa=i",
-      "googleusercontent.com/proxy"
+      "google.com/url?sa=i", // new one
+      "googleusercontent.com/proxy" // (optional) some proxy links break too
     ];
-    return !blockedPatterns.some(pattern => url.includes(pattern));
+  
+    for (let pattern of blockedPatterns) {
+      if (url.includes(pattern)) return false;
+    }
+  
+    return true;
   };
+  
+
+
 
   const handleSave = async () => {
     if (!isValidImageUrl(form.image_url)) {
-      alert("❌ Please paste a direct image link. Tip: right-click the image ➝ open in new tab ➝ copy that URL. Avoid using Google image preview links.");
-      return;
-    }
-
+        alert("❌ Please paste a direct image link. Tip: right-click the image ➝ open in new tab ➝ copy that URL. Avoid using Google image preview links.");
+        return;
+      }    
+    
     try {
-      const res = await axios.put(
-        `http://localhost:3002/api/books/${bookId}`,
+      const res = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/api/books/${bookId}`, 
         form,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'user-email': user.email,
-          }
-        }
+        { headers: { 'Content-Type': 'application/json', 'user-email': user.email } }
       );
-
+      
       onBookUpdated({
         id: res.data.id,
         volumeInfo: {
@@ -69,7 +71,6 @@ function EditBookModal({ book, onBookUpdated }) {
           }
         }
       });
-
       setShow(false);
       alert("✅ Book updated successfully.");
     } catch (err) {
@@ -89,28 +90,28 @@ function EditBookModal({ book, onBookUpdated }) {
           <Modal.Title>Edit Book</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {["title", "author", "genre", "image_url"].map((field) => (
-            <Form.Group className="mb-2" key={field}>
-              <Form.Label>{field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
-              <Form.Control
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                required
-              />
-            </Form.Group>
-          ))}
+        {["title", "author", "genre", "image_url"].map((field) => (
+                <Form.Group className="mb-2" key={field}>
+                    <Form.Label>{field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
+                    <Form.Control
+                    name={field}
+                    value={form[field]}
+                    onChange={handleChange}
+                    required
+                    />
+                </Form.Group>
+                ))}
 
-          <Form.Group className="mb-2">
-            <Form.Label>Published</Form.Label>
-            <Form.Control
-              type="date"
-              name="published"
-              value={form.published}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
+                <Form.Group className="mb-2">
+                <Form.Label>Published</Form.Label>
+                <Form.Control
+                    type="date"
+                    name="published"
+                    value={form.published}
+                    onChange={handleChange}
+                    required
+                />
+                </Form.Group>
 
           <Form.Group>
             <Form.Label>Description</Form.Label>

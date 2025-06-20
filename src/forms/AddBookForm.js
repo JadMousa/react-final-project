@@ -50,13 +50,13 @@ function AddBookForm({ onBookAdded = () => {} }) {
       }
 
     try {
-      const res = await fetch('http://localhost:3002/api/books', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/books`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'user-email': user?.email
+          'user-email': user?.email,
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
 
       if (res.status === 201) {

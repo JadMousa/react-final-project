@@ -13,7 +13,7 @@ function Books() {
   const [loading, setLoading] = useState(true);
   const [loadingImports, setLoadingImports] = useState(true);
 
-  // Load Google Books
+  // Load Google Books (external books)
   useEffect(() => {
     axios.get('https://www.googleapis.com/books/v1/volumes?q=api')
       .then(res => {
@@ -25,19 +25,19 @@ function Books() {
       });
   }, []);
 
-  // Load imported admin books (via localStorage + API)
+  // Load admin-imported books (from local DB)
   useEffect(() => {
     const storedIds = JSON.parse(localStorage.getItem('importedIds') || '[]');
-    setImportedIds(storedIds); // still used by UI if needed
-  
+    setImportedIds(storedIds);
+
     const fetchBooks = async () => {
       const validBooks = [];
       const validIds = [];
-  
+
       await Promise.all(
         storedIds.map(async (id) => {
           try {
-            const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+            const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
             validBooks.push({
               id: res.data.id,
               volumeInfo: {
@@ -61,16 +61,15 @@ function Books() {
           }
         })
       );
-  
+
       setAdminBooks(validBooks);
       setImportedIds(validIds);
-      localStorage.setItem('importedIds', JSON.stringify(validIds)); // update cleaned list
+      localStorage.setItem('importedIds', JSON.stringify(validIds));
       setLoadingImports(false);
     };
-  
+
     fetchBooks();
   }, []);
-  
 
   return (
     <Container className="my-4">
@@ -89,7 +88,7 @@ function Books() {
         <Row xs={1} sm={2} md={3} lg={4} className="g-4 mb-5">
           {books.map(book => (
             <Col key={book.id}>
-              <BookCard book={book} /> {/* No import button here */}
+              <BookCard book={book} />
             </Col>
           ))}
         </Row>
@@ -105,7 +104,7 @@ function Books() {
             <Row xs={1} sm={2} md={3} lg={4} className="g-4">
               {adminBooks.map(book => (
                 <Col key={book.id}>
-                  <BookCard book={book} /> {/* Still no import button */}
+                  <BookCard book={book} />
                 </Col>
               ))}
             </Row>

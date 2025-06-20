@@ -9,11 +9,12 @@ function BookDetails() {
   const [isAdminImported, setIsAdminImported] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
   const fetchBookDetails = async () => {
     try {
       if (/^\d+$/.test(id)) {
         // ✅ If ID is all digits → it's from your DB
-        const res = await axios.get(`http://localhost:3002/api/books/${id}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/books/${id}`);
         setBook({ volumeInfo: res.data });
         setIsAdminImported(true);
       } else {
@@ -30,7 +31,7 @@ function BookDetails() {
     }
   };
 
-  useEffect(() => {
+
     fetchBookDetails();
   }, [id]);
 
@@ -47,7 +48,7 @@ function BookDetails() {
   }
 
   const info = book.volumeInfo;
-  const image = info.imageLinks?.thumbnail || info.image_url || 'https://via.placeholder.com/150';
+  const image = info.imageLinks?.thumbnail || info.image_url || 'https://placehold.co/150x200?text=No+Image';
   const title = info.title || 'No title available';
   const author = info.authors?.join(', ') || info.author || 'Unknown Author';
   const category = info.categories?.join(', ') || info.genre || 'Uncategorized';

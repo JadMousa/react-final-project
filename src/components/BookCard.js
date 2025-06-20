@@ -12,7 +12,7 @@ function BookCard({ book, onImportToGoogleList }) {
   const author = info.authors?.[0] || info.author || 'Unknown Author';
   const category = info.categories?.[0] || info.genre || 'Uncategorized';
   const published = info.publishedDate || info.published || 'Unknown';
-  const image = info.imageLinks?.thumbnail || info.image_url || 'https://via.placeholder.com/150';
+  const image = info.imageLinks?.thumbnail || info.image_url || 'https://placehold.co/150x200?text=No+Image';
 
   const bookId = book.id;
 
